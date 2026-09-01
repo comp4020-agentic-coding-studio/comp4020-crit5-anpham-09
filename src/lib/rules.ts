@@ -34,6 +34,8 @@ export type State = {
   slider: Slider;
   status: Status;
   score: number;
+  /** Drops that landed inside SNAP. Precision is the skill worth showing. */
+  perfect: number;
 };
 
 export function overlap(a: Block, b: Block): Block {
@@ -59,6 +61,7 @@ export function createGame(): State {
     slider: spawn(0, BASE_WIDTH),
     status: "playing",
     score: 0,
+    perfect: 0,
   };
 }
 
@@ -80,6 +83,7 @@ export function drop(state: State): State {
     slider: spawn(score, landed.width),
     status: "playing",
     score,
+    perfect: state.perfect + (flush ? 1 : 0),
   };
 }
 

@@ -9,9 +9,9 @@ import { createGame, drop } from "./rules";
 function root(): Element {
   const { window } = new JSDOM(`
     <main data-game>
-      <p data-best hidden></p>
-      <div data-field><div data-tower></div><div data-slider></div></div>
       <p data-score>0</p>
+      <div data-field><div data-tower></div><div data-slider></div></div>
+      <p><span data-perfect>0</span><span data-best hidden></span></p>
     </main>
   `);
   return window.document.querySelector("[data-game]")!;
@@ -57,16 +57,15 @@ describe("render", () => {
     expect(best.textContent).toBe("9");
   });
 
-  // The record is drawn as a datum line ruled at the height to beat, so the
-  // number has to reach the stylesheet as a number, not only as text.
-  it("publishes the record height for the datum line", () => {
+  it("writes the perfect count", () => {
     const el = root();
+    const state = drop({
+      ...createGame(),
+      slider: { x: 30, width: 40, dir: 1 as const },
+    });
 
-    render(el, createGame(), null);
-    expect((el as HTMLElement).style.getPropertyValue("--best")).toBe("0");
-
-    render(el, createGame(), 9);
-    expect((el as HTMLElement).style.getPropertyValue("--best")).toBe("9");
+    render(el, state, null);
+    expect(el.querySelector("[data-perfect]")!.textContent).toBe("1");
   });
 
   it("marks the root when the game is over", () => {

@@ -22,18 +22,20 @@ const description = "A small browser game.";
       <a class="skip-link" href="#play">Skip to the game</a>
     </nav>
 
-    <header class="sheet-head">
-      <h1>{title}</h1>
-
-      <button class="restart" type="button" data-restart aria-label="New game">
-        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-          <path d="M20.5 12a8.5 8.5 0 1 1-2.49-6.01" fill="none" />
-          <path d="M20.5 3.5v5h-5" fill="none" />
-        </svg>
-      </button>
-    </header>
-
     <main data-game>
+      <header class="hud">
+        <h1>{title}</h1>
+
+        <button class="restart" type="button" data-restart aria-label="New game">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+            <path d="M20.5 12a8.5 8.5 0 1 1-2.49-6.01" fill="none" />
+            <path d="M20.5 3.5v5h-5" fill="none" />
+          </svg>
+        </button>
+      </header>
+
+      <p class="readout" aria-live="polite" data-score>0</p>
+
       <div
         id="play"
         class="field"
@@ -44,10 +46,19 @@ const description = "A small browser game.";
       >
         <div class="tower" data-tower></div>
         <div class="slider" data-slider></div>
-        <p class="best" data-best hidden></p>
       </div>
 
-      <p class="score" aria-live="polite" data-score>0</p>
+      <footer class="stats">
+        <p class="stat stat-perfect">
+          <span class="stat-label">Perfect</span>
+          <span class="stat-value" data-perfect>0</span>
+        </p>
+
+        <p class="stat stat-best">
+          <span class="stat-label">Best</span>
+          <span class="stat-value" data-best hidden></span>
+        </p>
+      </footer>
     </main>
 
     <script>

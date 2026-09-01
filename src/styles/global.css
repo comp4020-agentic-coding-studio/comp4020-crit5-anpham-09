@@ -1,54 +1,42 @@
 /*
- * Stack Tower, drawn as an elevation.
+ * Stack Tower.
  *
- * The game is about alignment and accumulated error, not about height as
- * aspiration, so the sheet borrows from architectural drafting: a cyanotype
- * ground, storey rules that measure the tower, and blocks drawn as plan
- * rectangles. Colour comes only from tokens, so the whole scheme is one block
- * to retune. Geometry is in percentages of the field, which is what makes
- * 1920x1080 and 390x844 the same game.
- *
- * The one warm thing on the sheet is the record datum. Nothing else competes.
+ * Colour comes only from tokens, so the whole scheme is one block to retune.
+ * Geometry is in percentages of the field, which is what makes 1920x1080 and
+ * 390x844 the same game. Blocks cycle a five-colour ramp by position, so the
+ * tower stripes itself as it grows without any of that reaching the logic.
  */
 
 :root {
-  --ground: oklch(24% 0.055 254deg);
-  --ground-deep: oklch(15% 0.045 258deg);
-  --storey: oklch(80% 0.05 235deg / 5%);
-  --storey-major: oklch(82% 0.05 232deg / 13%);
-  --ink: oklch(93% 0.02 225deg);
-  --ink-soft: oklch(68% 0.04 232deg);
-  --block: oklch(87% 0.07 218deg);
-  --block-alt: oklch(79% 0.09 204deg);
-  --block-edge: oklch(38% 0.06 246deg);
-  --base: oklch(56% 0.07 236deg);
-  --ghost: oklch(87% 0.07 218deg / 16%);
-  --datum: oklch(83% 0.15 82deg);
-  --datum-line: oklch(83% 0.15 82deg / 55%);
-  --mono: ui-monospace, sfmono-regular, "SF Mono", menlo, consolas, monospace;
-  --sans: system-ui, sans-serif;
+  --ground: oklch(22% 0.035 265deg);
+  --ground-deep: oklch(14% 0.03 268deg);
+  --panel: oklch(17% 0.028 267deg);
+  --hairline: oklch(70% 0.03 265deg / 12%);
+  --ink: oklch(97% 0.005 265deg);
+  --ink-soft: oklch(64% 0.025 265deg);
+  --readout: oklch(81% 0.15 76deg);
+  --accent-perfect: oklch(72% 0.15 240deg);
+  --accent-best: oklch(70% 0.19 350deg);
+  --bokeh-violet: oklch(46% 0.15 300deg / 26%);
+  --bokeh-indigo: oklch(44% 0.13 268deg / 22%);
+  --bokeh-blue: oklch(50% 0.11 232deg / 16%);
+  --glow: oklch(10% 0.03 268deg / 55%);
+  --focus: oklch(78% 0.14 240deg);
+  --ramp-1-from: oklch(66% 0.20 296deg);
+  --ramp-1-to: oklch(60% 0.19 266deg);
+  --ramp-2-from: oklch(68% 0.22 350deg);
+  --ramp-2-to: oklch(62% 0.20 316deg);
+  --ramp-3-from: oklch(70% 0.16 246deg);
+  --ramp-3-to: oklch(75% 0.14 210deg);
+  --ramp-4-from: oklch(79% 0.16 76deg);
+  --ramp-4-to: oklch(83% 0.15 92deg);
+  --ramp-5-from: oklch(68% 0.16 160deg);
+  --ramp-5-to: oklch(64% 0.15 148deg);
   --block-h: 1.75rem;
+  --radius: 6px;
   --lift: 0;
-  --best: 0;
   --gutter: 1rem;
-  --column: 38rem;
-}
-
-/*
- * A blueprint is a dark artefact, so the scheme does not invert. For a reader
- * who has asked for light, the ground is sun-faded rather than replaced.
- */
-@media (prefers-color-scheme: light) {
-  :root {
-    --ground: oklch(42% 0.055 250deg);
-    --ground-deep: oklch(30% 0.05 254deg);
-    --storey: oklch(92% 0.03 230deg / 8%);
-    --storey-major: oklch(96% 0.03 228deg / 18%);
-    --block: oklch(93% 0.04 215deg);
-    --block-alt: oklch(87% 0.06 202deg);
-    --base: oklch(70% 0.06 232deg);
-    --ghost: oklch(96% 0.02 215deg / 22%);
-  }
+  --column: 34rem;
 }
 
 * {
@@ -56,18 +44,33 @@
 }
 
 body {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-
-  /* Lighter air above, deeper ground below, so the blocks gain contrast
-     exactly where the tower is built. */
+  overflow-x: hidden;
   background: linear-gradient(var(--ground), var(--ground-deep));
   color: var(--ink);
-  font-family: var(--sans);
+  font-family: system-ui, sans-serif;
+}
+
+/*
+ * Ambient depth, drawn rather than imported: three soft discs behind
+ * everything. Pseudo-elements so the markup stays about the game.
+ */
+body::before {
+  position: fixed;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(28rem 28rem at 12% 8%, var(--bokeh-violet), transparent 70%),
+    radial-gradient(34rem 34rem at 88% 22%, var(--bokeh-indigo), transparent 70%),
+    radial-gradient(30rem 30rem at 20% 92%, var(--bokeh-blue), transparent 70%);
+  content: "";
+  pointer-events: none;
 }
 
 .skip-link {
@@ -77,71 +80,13 @@ body {
   align-items: center;
   min-height: 44px;
   padding: 0.5rem 1rem;
-  border-radius: 2px;
-  background: var(--ground-deep);
+  border-radius: var(--radius);
+  background: var(--panel);
   color: var(--ink);
 }
 
 .skip-link:focus {
   position: static;
-}
-
-/* The title block of a drawing sheet: small, tracked, ruled off. */
-.sheet-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--gutter);
-  width: min(var(--column), 100%);
-  padding: calc(var(--gutter) * 0.75) var(--gutter) 0.4rem;
-  border-bottom: 1px solid var(--storey);
-}
-
-h1 {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-}
-
-/*
- * Wordless on purpose: the screen has to invite the first move without saying
- * anything, so the label lives in aria-label. It sits outside the field so it
- * can never swallow a drop, and it is a full 44px target around an 18px glyph.
- */
-.restart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  background: none;
-  color: var(--ink-soft);
-  cursor: pointer;
-  transition: color 120ms ease-out, border-color 120ms ease-out;
-}
-
-.restart:hover {
-  border-color: var(--storey);
-  color: var(--ink);
-}
-
-.restart:focus-visible {
-  border-color: var(--datum);
-  color: var(--ink);
-  outline: none;
-}
-
-.restart svg {
-  stroke: currentcolor;
-  stroke-width: 1.6;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 main {
@@ -151,43 +96,95 @@ main {
   flex-direction: column;
   align-items: center;
   width: min(var(--column), 100%);
+  padding: 0 var(--gutter);
+}
+
+.hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: var(--gutter);
+}
+
+h1 {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/*
+ * Wordless on purpose: the screen has to invite the first move without saying
+ * anything, so the label lives in aria-label. It sits outside the field so it
+ * can never swallow a drop, and it is a 44px target around a 20px glyph.
+ */
+.restart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--hairline);
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 120ms ease-out, border-color 120ms ease-out;
+}
+
+.restart:hover {
+  border-color: var(--focus);
+  color: var(--ink);
+}
+
+.restart:focus-visible {
+  border-color: var(--focus);
+  color: var(--ink);
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.restart svg {
+  stroke: currentcolor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* The live number, big because it is the thing you are watching. */
+.readout {
+  margin: 0.35rem 0 0.6rem;
+  color: var(--readout);
+  font-size: 3.25rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 
 .field {
   position: relative;
   flex: 1;
   width: 100%;
-  min-height: 18rem;
+  min-height: 16rem;
   overflow: hidden;
-  border-bottom: 2px solid var(--base);
   cursor: pointer;
   touch-action: manipulation;
 }
 
 .field:focus-visible {
-  outline: 2px solid var(--datum);
+  border-radius: var(--radius);
+  outline: 2px solid var(--focus);
   outline-offset: -2px;
 }
 
-/*
- * The tower carries the storey rules, so the measuring staff scrolls with the
- * building rather than sliding against it. It reaches far above the field to
- * keep the air ruled once the camera starts lifting.
- */
 .tower {
   position: absolute;
-  inset: -400% 0 0;
-  background:
-    repeating-linear-gradient(
-      to top,
-      var(--storey-major) 0 1px,
-      transparent 1px calc(var(--block-h) * 5)
-    ),
-    repeating-linear-gradient(
-      to top,
-      var(--storey) 0 1px,
-      transparent 1px var(--block-h)
-    );
+  inset: 0;
   transform: translateY(calc(var(--lift) * var(--block-h)));
   transition: transform 140ms ease-out;
 }
@@ -197,76 +194,91 @@ main {
   position: absolute;
   bottom: calc(var(--i, 0) * var(--block-h));
   height: var(--block-h);
-  border: 1px solid var(--block-edge);
-  background: var(--block);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 6px var(--glow);
 }
 
-.block:nth-child(odd) {
-  background: var(--block-alt);
+/* Five-colour ramp, cycled by position in the tower. */
+.block:nth-child(5n + 1) {
+  background: linear-gradient(100deg, var(--ramp-1-from), var(--ramp-1-to));
 }
 
-/* The ground course is drawn heavier, the way a footing is. */
-.block:first-child {
-  border-width: 2px 1px 1px;
-  background: var(--base);
+.block:nth-child(5n + 2) {
+  background: linear-gradient(100deg, var(--ramp-2-from), var(--ramp-2-to));
 }
 
-/* In flight and not yet committed, so it is drawn rather than filled. */
+.block:nth-child(5n + 3) {
+  background: linear-gradient(100deg, var(--ramp-3-from), var(--ramp-3-to));
+}
+
+.block:nth-child(5n + 4) {
+  background: linear-gradient(100deg, var(--ramp-4-from), var(--ramp-4-to));
+}
+
+.block:nth-child(5n + 5) {
+  background: linear-gradient(100deg, var(--ramp-5-from), var(--ramp-5-to));
+}
+
+/* The piece in flight, lit brighter than anything it will land on. */
 .slider {
-  border-color: var(--ink);
-  background: var(--ghost);
+  background: linear-gradient(100deg, var(--ramp-3-from), var(--ramp-3-to));
+  box-shadow: 0 0 0 1px var(--ink), 0 4px 14px var(--glow);
   transform: translateY(calc(var(--lift) * var(--block-h)));
   transition: transform 140ms ease-out;
 }
 
 [data-status="over"] .slider {
-  border-style: dashed;
-  opacity: 0.4;
+  opacity: 0.3;
+}
+
+.stats {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.75rem 0 var(--gutter);
+}
+
+.stat {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.stat-label {
+  color: var(--ink-soft);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-perfect .stat-value {
+  color: var(--accent-perfect);
+}
+
+.stat-best .stat-value {
+  color: var(--accent-best);
 }
 
 /*
- * The record datum: a line ruled across the sheet at the height to beat, with
- * its number sitting on it. Zero height so the rule and the figure share one
- * baseline, and it rides the same lift as the tower it measures.
+ * There is no record until a run has ended, and an empty tile is quieter than
+ * a placeholder. The tile keeps its space so the row does not jump.
  */
-.best {
-  position: absolute;
-  right: 0;
-  bottom: calc(var(--best) * var(--block-h));
-  left: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  height: 0;
-  margin: 0;
-  padding-right: 0.15rem;
-  color: var(--datum);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.1em;
-  pointer-events: none;
-  transform: translateY(calc(var(--lift) * var(--block-h)));
-  transition: transform 140ms ease-out;
-}
-
-.best::before {
-  flex: 1;
-  border-top: 1px dashed var(--datum-line);
-  content: "";
-}
-
-/* The readout. Monospaced because it is a measurement, not a label. */
-.score {
-  margin: 0;
-  padding: 0.65rem 0 var(--gutter);
-  color: var(--ink);
-  font-family: var(--mono);
-  font-size: 2.75rem;
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  line-height: 1;
+.stat:has([data-best][hidden]) {
+  opacity: 0.35;
 }
 
 /*

@@ -97,6 +97,28 @@ describe("drop", () => {
     }
   });
 
+  it("counts a flush drop as perfect", () => {
+    const state = createGame();
+    const flush = drop({
+      ...state,
+      slider: { x: state.stack[0].x, width: BASE_WIDTH, dir: 1 },
+    });
+
+    expect(flush.perfect).toBe(1);
+  });
+
+  it("does not count a trimmed drop as perfect", () => {
+    const state = createGame();
+    const trimmed = drop({ ...state, slider: { x: 40, width: BASE_WIDTH, dir: 1 } });
+
+    expect(trimmed.perfect).toBe(0);
+    expect(trimmed.score).toBe(1);
+  });
+
+  it("starts a new game with nothing perfect", () => {
+    expect(createGame().perfect).toBe(0);
+  });
+
   it("ignores a drop once the game is over", () => {
     const over = { ...createGame(), status: "over" as const };
     expect(drop(over)).toBe(over);

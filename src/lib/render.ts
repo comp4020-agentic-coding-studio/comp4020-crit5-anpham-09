@@ -21,7 +21,8 @@ export function render(root: Element, state: State, best: number | null): void {
   const slider = root.querySelector<HTMLElement>("[data-slider]");
   const score = root.querySelector("[data-score]");
   const bestEl = root.querySelector<HTMLElement>("[data-best]");
-  if (!tower || !slider || !score || !bestEl) return;
+  const perfectEl = root.querySelector("[data-perfect]");
+  if (!tower || !slider || !score || !bestEl || !perfectEl) return;
 
   // The stack shrinks on restart, and an append-only renderer would leave the
   // dead run's blocks standing above the new base. Drop the surplus first.
@@ -51,17 +52,15 @@ export function render(root: Element, state: State, best: number | null): void {
   const lift = Math.max(0, state.stack.length - VISIBLE);
   (tower as HTMLElement).style.setProperty("--lift", String(lift));
   slider.style.setProperty("--lift", String(lift));
-  bestEl.style.setProperty("--lift", String(lift));
-
-  // The record is drawn as a datum ruled across the sheet at the height to
-  // beat, so the stylesheet needs the height as a number, not just the text.
-  (root as HTMLElement).style.setProperty("--best", String(best ?? 0));
 
   // render runs every frame, and [data-score] is an aria-live region: writing
   // unconditionally would hand a screen reader ~60 announcements a second for a
   // number that changes once per drop.
   const nextScore = String(state.score);
   if (score.textContent !== nextScore) score.textContent = nextScore;
+
+  const nextPerfect = String(state.perfect);
+  if (perfectEl.textContent !== nextPerfect) perfectEl.textContent = nextPerfect;
 
   const nextBest = best === null ? "" : String(best);
   if (bestEl.textContent !== nextBest) bestEl.textContent = nextBest;
