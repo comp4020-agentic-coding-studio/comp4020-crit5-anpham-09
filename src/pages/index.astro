@@ -42,5 +42,65 @@ const description =
 
       <p class="score" aria-live="polite" data-score>0</p>
     </main>
+
+    <script>
+      import { render } from "../lib/render";
+      import { createGame, drop, tick } from "../lib/rules";
+      import { readBest, writeBest } from "../lib/storage";
+
+      const root = document.querySelector("[data-game]");
+      const field = document.querySelector<HTMLElement>("[data-field]");
+
+      if (root && field) {
+        // Safari in private browsing throws on the property itself, not on use.
+        const store = (() => {
+          try {
+            return window.localStorage;
+          } catch {
+            return null;
+          }
+        })();
+
+        let best = readBest(store);
+        let state = createGame();
+        let last = performance.now();
+
+        const paint = () => render(root, state, best);
+
+        const act = () => {
+          if (state.status === "over") {
+            state = createGame();
+          } else {
+            state = drop(state);
+            if (state.status === "over" && (best === null || state.score > best)) {
+              best = state.score;
+              writeBest(store, best);
+            }
+          }
+          paint();
+        };
+
+        field.addEventListener("pointerdown", (event) => {
+          event.preventDefault();
+          act();
+        });
+
+        field.addEventListener("keydown", (event) => {
+          if (event.key !== " " && event.key !== "Enter") return;
+          event.preventDefault();
+          act();
+        });
+
+        const frame = (now: number) => {
+          state = tick(state, now - last);
+          last = now;
+          paint();
+          requestAnimationFrame(frame);
+        };
+
+        paint();
+        requestAnimationFrame(frame);
+      }
+    </script>
   </body>
 </html>
