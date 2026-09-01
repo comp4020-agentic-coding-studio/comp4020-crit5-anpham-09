@@ -1007,6 +1007,12 @@ export function render(root: Element, state: State, best: number | null): void {
   const bestEl = root.querySelector<HTMLElement>("[data-best]");
   if (!tower || !slider || !score || !bestEl) return;
 
+  // The stack shrinks on restart, and an append-only renderer would leave the
+  // dead run's blocks standing above the new base. Drop the surplus first.
+  while (tower.children.length > state.stack.length) {
+    tower.lastElementChild?.remove();
+  }
+
   // Append only what is missing. Queried from `tower`, not from `root`: a
   // repaint query is scoped to what it repaints.
   for (let i = tower.children.length; i < state.stack.length; i++) {
