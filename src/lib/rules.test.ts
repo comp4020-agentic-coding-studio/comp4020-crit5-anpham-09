@@ -132,8 +132,20 @@ describe("tick", () => {
 
   it("reverses at an edge", () => {
     let state = createGame();
-    while (state.slider.dir === 1) state = tick(state, MAX_DT);
-    expect(state.slider.dir).toBe(-1);
+    const span = FIELD - state.slider.width;
+
+    let ticks = 0;
+    while (state.slider.dir === 1 && ticks < 1000) {
+      state = tick(state, MAX_DT);
+      ticks++;
+    }
+
+    // It turned around rather than running out of patience.
+    expect(ticks).toBeLessThan(1000);
+    expect(state.slider.x).toBeLessThanOrEqual(span);
+
+    // And it is genuinely heading back, not merely flagged as doing so.
+    expect(tick(state, MAX_DT).slider.x).toBeLessThan(state.slider.x);
   });
 
   // A backgrounded tab hands back a multi-second delta. Without the clamp the
@@ -146,5 +158,15 @@ describe("tick", () => {
   it("ignores time once the game is over", () => {
     const over = { ...createGame(), status: "over" as const };
     expect(tick(over, 16)).toBe(over);
+  });
+
+  it("cannot cross its whole span in a single frame", () => {
+    // Width only ever shrinks from BASE_WIDTH, so this is the narrowest the
+    // sweep can be. If a future constant change breaks this, the reflection
+    // loop's single-bounce assumption goes with it.
+    const narrowestSpan = FIELD - BASE_WIDTH;
+    const furthestTravel = (MAX_SPEED * MAX_DT) / 1000;
+
+    expect(furthestTravel).toBeLessThan(narrowestSpan);
   });
 });

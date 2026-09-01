@@ -101,8 +101,11 @@ export function tick(state: State, dtMs: number): State {
   let x = state.slider.x + state.slider.dir * speedFor(state.score) * (dt / 1000);
   let dir = state.slider.dir;
 
-  // Reflect off both walls. A loop rather than a branch: at a narrow width the
-  // span can be smaller than a single frame's travel.
+  // Reflect off the walls. A loop rather than a branch is defensive only: width
+  // never exceeds BASE_WIDTH, so span never drops below FIELD - BASE_WIDTH = 60,
+  // while a clamped frame travels at most MAX_SPEED * MAX_DT / 1000 = 6. One
+  // bounce per tick is the most this can currently do; the test below pins the
+  // margin so raising a constant cannot quietly break the assumption.
   while (x < 0 || x > span) {
     if (x < 0) {
       x = -x;
