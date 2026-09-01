@@ -1,6 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { BASE_WIDTH, FIELD, SNAP, createGame, drop, overlap, spawn } from "./rules";
+import {
+  BASE_WIDTH,
+  FIELD,
+  MAX_DT,
+  MAX_SPEED,
+  SNAP,
+  createGame,
+  drop,
+  overlap,
+  spawn,
+  speedFor,
+  tick,
+} from "./rules";
 
 // The geometry is the game. It is pure arithmetic on normalised field units so
 // it can be asserted without a DOM — JSDOM reports every rect as zero, so any
@@ -88,5 +100,51 @@ describe("drop", () => {
   it("ignores a drop once the game is over", () => {
     const over = { ...createGame(), status: "over" as const };
     expect(drop(over)).toBe(over);
+  });
+});
+
+describe("speedFor", () => {
+  it("rises with the score", () => {
+    expect(speedFor(5)).toBeGreaterThan(speedFor(0));
+  });
+
+  it("holds at the cap", () => {
+    expect(speedFor(10_000)).toBe(MAX_SPEED);
+  });
+});
+
+describe("tick", () => {
+  it("sweeps the slider along its direction", () => {
+    const state = createGame();
+    const next = tick(state, 100);
+
+    expect(next.slider.x).toBeGreaterThan(state.slider.x);
+  });
+
+  it("keeps the slider inside the field", () => {
+    let state = createGame();
+    for (let i = 0; i < 500; i++) {
+      state = tick(state, MAX_DT);
+      expect(state.slider.x).toBeGreaterThanOrEqual(0);
+      expect(state.slider.x + state.slider.width).toBeLessThanOrEqual(FIELD + 1e-9);
+    }
+  });
+
+  it("reverses at an edge", () => {
+    let state = createGame();
+    while (state.slider.dir === 1) state = tick(state, MAX_DT);
+    expect(state.slider.dir).toBe(-1);
+  });
+
+  // A backgrounded tab hands back a multi-second delta. Without the clamp the
+  // slider teleports across the field and the player loses a move they never made.
+  it("clamps a huge delta to the same result as MAX_DT", () => {
+    const state = createGame();
+    expect(tick(state, 5000)).toEqual(tick(state, MAX_DT));
+  });
+
+  it("ignores time once the game is over", () => {
+    const over = { ...createGame(), status: "over" as const };
+    expect(tick(over, 16)).toBe(over);
   });
 });

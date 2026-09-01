@@ -82,3 +82,37 @@ export function drop(state: State): State {
     score,
   };
 }
+
+/**
+ * Advance the slider by `dtMs` of game time.
+ *
+ * The delta is clamped first. A tab that has been in the background returns a
+ * multi-second delta on its first frame back, and an unclamped sweep would put
+ * the slider somewhere the player never saw — a loss they did not make. The
+ * clamp is a fairness rule, which is why it has a test.
+ */
+export function tick(state: State, dtMs: number): State {
+  if (state.status !== "playing") return state;
+
+  const span = FIELD - state.slider.width;
+  if (span <= 0) return state;
+
+  const dt = Math.min(dtMs, MAX_DT);
+  let x = state.slider.x + state.slider.dir * speedFor(state.score) * (dt / 1000);
+  let dir = state.slider.dir;
+
+  // Reflect off both walls. A loop rather than a branch: at a narrow width the
+  // span can be smaller than a single frame's travel.
+  while (x < 0 || x > span) {
+    if (x < 0) {
+      x = -x;
+      dir = 1;
+    }
+    if (x > span) {
+      x = 2 * span - x;
+      dir = -1;
+    }
+  }
+
+  return { ...state, slider: { ...state.slider, x, dir } };
+}
