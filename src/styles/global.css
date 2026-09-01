@@ -1,0 +1,167 @@
+/*
+ * Stack Tower.
+ *
+ * Colour comes only from tokens, so dark mode is one block redefining them
+ * rather than fifty overrides. Geometry is in percentages of the field, which
+ * is what makes 1920x1080 and 390x844 the same game.
+ */
+
+:root {
+  --sky: oklch(96% 0.02 250deg);
+  --sky-deep: oklch(91% 0.03 250deg);
+  --ink: oklch(25% 0.03 250deg);
+  --ink-soft: oklch(52% 0.02 250deg);
+  --block: oklch(72% 0.15 250deg);
+  --block-alt: oklch(76% 0.14 190deg);
+  --block-edge: oklch(45% 0.12 250deg);
+  --base: oklch(40% 0.04 250deg);
+  --shadow: oklch(25% 0.03 250deg / 18%);
+  --block-h: 1.75rem;
+  --lift: 0;
+  --gutter: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sky: oklch(22% 0.02 250deg);
+    --sky-deep: oklch(16% 0.02 250deg);
+    --ink: oklch(93% 0.02 250deg);
+    --ink-soft: oklch(70% 0.02 250deg);
+    --block: oklch(62% 0.15 250deg);
+    --block-alt: oklch(66% 0.14 190deg);
+    --block-edge: oklch(80% 0.10 250deg);
+    --base: oklch(72% 0.04 250deg);
+    --shadow: oklch(0% 0 0deg / 35%);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(var(--sky), var(--sky-deep));
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.skip-link {
+  position: absolute;
+  left: -100vw;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--sky);
+  color: var(--ink);
+}
+
+.skip-link:focus {
+  position: static;
+}
+
+h1 {
+  margin: var(--gutter) 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+main {
+  position: relative;
+  width: min(38rem, 100%);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.field {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 20rem;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.field:focus-visible {
+  outline: 3px solid var(--block-edge);
+  outline-offset: -3px;
+}
+
+.tower {
+  position: absolute;
+  inset: 0;
+  transform: translateY(calc(var(--lift) * var(--block-h)));
+  transition: transform 120ms ease-out;
+}
+
+.block,
+.slider {
+  position: absolute;
+  height: var(--block-h);
+  bottom: calc(var(--i, 0) * var(--block-h));
+  border: 1px solid var(--block-edge);
+  border-radius: 3px;
+  background: var(--block);
+  box-shadow: 0 1px 3px var(--shadow);
+}
+
+.block:nth-child(odd) {
+  background: var(--block-alt);
+}
+
+.block:first-child {
+  background: var(--base);
+}
+
+.slider {
+  /* Same direction as the tower: both are lifted by the camera, not against it. */
+  transform: translateY(calc(var(--lift) * var(--block-h)));
+  transition: transform 120ms ease-out;
+}
+
+.score {
+  margin: 0 0 var(--gutter);
+  font-size: 3rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.best {
+  position: absolute;
+  top: var(--gutter);
+  right: var(--gutter);
+  margin: 0;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
+[data-status="over"] .slider {
+  opacity: 0.25;
+}
+
+/*
+ * The sweep and the fall are the game, and they are driven by
+ * requestAnimationFrame rather than CSS — so this blanket reset strips the
+ * decoration around them without stopping play. Motion that cannot be turned
+ * off is an accessibility defect; motion that IS the mechanic is exempt.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

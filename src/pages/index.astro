@@ -1,0 +1,46 @@
+---
+import { asset } from "../lib/url";
+import "../styles/global.css";
+
+const title = "Stack Tower";
+const description =
+  "Drop the sliding block onto the tower. Every miss makes the next one narrower.";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={asset("card.png")} />
+  </head>
+  <body>
+    <nav aria-label="Skip links">
+      <a class="skip-link" href="#play">Skip to the game</a>
+    </nav>
+
+    <h1>{title}</h1>
+
+    <main data-game>
+      <p class="best" data-best hidden></p>
+
+      <div
+        id="play"
+        class="field"
+        data-field
+        tabindex="0"
+        role="application"
+        aria-label={title}
+      >
+        <div class="tower" data-tower></div>
+        <div class="slider" data-slider></div>
+      </div>
+
+      <p class="score" aria-live="polite" data-score>0</p>
+    </main>
+  </body>
+</html>
