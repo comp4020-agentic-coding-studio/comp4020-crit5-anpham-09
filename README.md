@@ -33,7 +33,7 @@ pnpm check:evidence  # the process-evidence check CI runs before you ship
 pnpm build           # produce dist/ (what gets deployed)
 
 # reproduce CI's links check before you push
-pnpm dlx linkinator ./dist --silent --skip "^https?://(?!localhost|127)"
+pnpm check:links
 ```
 
 `mise` is the course's recommended runtime manager. If you use another manager
@@ -43,7 +43,8 @@ problems with mise.
 
 ## What's here
 
-- `index.html`, `styles.css`, `main.ts` --- a minimal starting site. Replace it.
+- `src/pages/` --- Astro routes; `src/lib/` --- behaviour, tested alongside the
+  page markup; `src/styles/` --- shared CSS.
 - `mise.toml` --- the tested Node and pnpm versions for this template.
 - `spec/` --- what the checks are for (`README.md`) and the shipped invariants
   (`invariants.test.ts`); the spec tests you write live alongside them.
@@ -58,10 +59,8 @@ problems with mise.
   like an API key, so your COMP4020 key can't end up in a public repo. Installed
   automatically by `pnpm install`.
 
-This template is SSG-agnostic: plain HTML/CSS/TypeScript on Vite, so you can add
-Astro, Eleventy, or any static generator later without changing how it deploys.
-The course plugin's `stack` skill performs the swap for you — to the course
-default (Astro) or bare HTML/CSS — with the Pages base path, lockfile, and CI
-link check handled.
+This template's SSG-agnostic starter was swapped to the course default,
+**Astro**, using the course plugin's `stack` skill --- with the Pages base
+path, lockfile, and CI link check handled.
 
 See the course site for how the checks map to each week of the course.

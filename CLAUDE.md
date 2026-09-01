@@ -121,7 +121,7 @@ that names it must be on every page. Under Astro that head block belongs in a
 layout in `src/layouts/`, not copy-pasted per page --- the Vite template's
 advice to "copy the head block into any new page" is one route to it, and the
 worse one. Replace the card and the `description` meta. The card URL resolves
-against the page that names it, like any link, so build it through `route()`
+against the page that names it, like any link, so build it through `asset()`
 rather than writing `./card.png`; nothing in CI checks it, so look at the
 deployed head when you add pages.
 

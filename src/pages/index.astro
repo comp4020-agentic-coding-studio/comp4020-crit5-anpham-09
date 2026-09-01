@@ -3,8 +3,7 @@ import { asset } from "../lib/url";
 import "../styles/global.css";
 
 const title = "Stack Tower";
-const description =
-  "Drop the sliding block onto the tower. Every miss makes the next one narrower.";
+const description = "A small browser game.";
 ---
 
 <!doctype html>
@@ -82,6 +81,9 @@ const description =
 
         field.addEventListener("pointerdown", (event) => {
           event.preventDefault();
+          // preventDefault suppresses the default focus, so take it explicitly:
+          // without this the keydown handler below never fires and Space scrolls.
+          field.focus();
           act();
         });
 

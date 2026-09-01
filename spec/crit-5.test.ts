@@ -101,12 +101,10 @@ describe("C5: one rule under test", () => {
   it("a block with zero overlap ends the game", () => {
     const state = createGame();
 
-    // A full miss is only geometrically possible once a block is narrow enough
-    // to sit clear of the one beneath it: with equal widths, the slider can be
-    // at most (FIELD - width) / 2 from centre, so a miss needs width below a
-    // third of the field. The opening block is deliberately wider than that —
-    // the first few drops cannot be lost, which is what lets a stranger learn
-    // the game safely. So advance the tower to a narrow block first.
+    // A block can only miss entirely once it is narrow enough to sit clear of
+    // the one beneath it, so this starts from a narrow tower rather than the
+    // opening block. The state is constructed rather than played into: what is
+    // under test is the rule, not the route to it.
     const top = { x: 60, width: 20 };
     const narrowed = {
       ...state,

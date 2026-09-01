@@ -54,10 +54,13 @@ body {
 .skip-link {
   position: absolute;
   left: -100vw;
+  min-height: 44px;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   background: var(--sky);
   color: var(--ink);
+  display: flex;
+  align-items: center;
 }
 
 .skip-link:focus {

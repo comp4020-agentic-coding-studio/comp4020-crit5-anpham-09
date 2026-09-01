@@ -52,10 +52,15 @@ export function render(root: Element, state: State, best: number | null): void {
   (tower as HTMLElement).style.setProperty("--lift", String(lift));
   slider.style.setProperty("--lift", String(lift));
 
-  score.textContent = String(state.score);
+  // render runs every frame, and [data-score] is an aria-live region: writing
+  // unconditionally would hand a screen reader ~60 announcements a second for a
+  // number that changes once per drop.
+  const nextScore = String(state.score);
+  if (score.textContent !== nextScore) score.textContent = nextScore;
 
-  bestEl.hidden = best === null;
-  bestEl.textContent = best === null ? "" : String(best);
+  const nextBest = best === null ? "" : String(best);
+  if (bestEl.textContent !== nextBest) bestEl.textContent = nextBest;
+  if (bestEl.hidden !== (best === null)) bestEl.hidden = best === null;
 
   root.setAttribute("data-status", state.status);
 }
