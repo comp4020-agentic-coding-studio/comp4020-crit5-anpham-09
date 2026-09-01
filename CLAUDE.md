@@ -53,6 +53,15 @@ you plan or build, and see `spec/README.md` for how the checks relate to them.
   --- the page is wrong until the check is green, not until you decide it should
   be.
 - Commit when the checks pass. Never commit a red state.
+- **Never tell a reviewer what not to flag.** Dismissing a finding in advance is
+  the one reliable way to make a review structurally unable to catch something.
+  C5 shipped a `meta[name=description]` reading "Drop the sliding block onto the
+  tower" --- a how-to, on a page whose spec bans instructions "on screen or
+  off" --- and the task review missed it because its own prompt said a
+  description "is link-preview text, not on-page instruction, that is fine". The
+  final whole-branch review, given no such steer, found it immediately. If a
+  finding looks like a false positive, let it be raised and argue it down on the
+  record: pre-judging saves one review loop and costs the finding.
 
 ## The checks (your sensors)
 
@@ -93,9 +102,16 @@ running counts as not green, so ship with time for CI to finish.
 - **evidence** (`pnpm check:evidence`) --- checks your process evidence:
   `PROCESS.md`'s citations resolve to real commits, the current deliverable's
   exact reflection is in `reflections/` (worked out from this repo's name
-  against the public course API), and your `CLAUDE.md` is present. Evidence
-  gates the deploy --- `deploy` needs `check` to pass, so failing evidence
-  blocks the deploy alongside everything else. See
+  against the public course API), and your `CLAUDE.md` is present. **Evidence does not
+  gate the deploy** --- this file asserted the opposite for weeks and it was
+  never true. `.github/workflows/checks.yml` is deliberately *not*
+  `needs: check`, and says why at length: a blocked deploy doesn't take a site
+  offline, Pages keeps serving the last deployment, so the site silently
+  freezes at the last green commit while the repo moves on and the sweep reads
+  a bare 200 as live. The real cost of red evidence is the sweep's own
+  arithmetic --- green earns the full mark for that half, red or absent earns
+  half --- plus a missing reflection scoring the shipping half at zero. Read
+  the workflow, not this file, when the two disagree. See
   [Your process is part of the mark](#your-process-is-part-of-the-mark) below,
   and the course website's
   [assessment page](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/assessment/#what-you-submit)
