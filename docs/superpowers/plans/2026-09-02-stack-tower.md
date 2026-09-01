@@ -274,18 +274,29 @@ In `spec/crit-5.test.ts`, delete the entire trailing comment block and `describe
 describe("C5: one rule under test", () => {
   it("a block with zero overlap ends the game", () => {
     const state = createGame();
-    const top = state.stack[0];
 
-    // Park the slider entirely clear of the block beneath it.
-    const missing = { ...state, slider: { x: 0, width: top.width, dir: 1 as const } };
-    expect(overlap(missing.slider, top).width).toBe(0);
+    // A full miss is only geometrically possible once a block is narrow enough
+    // to sit clear of the one beneath it: with equal widths, the slider can be
+    // at most (FIELD - width) / 2 from centre, so a miss needs width below a
+    // third of the field. The opening block is deliberately wider than that —
+    // the first few drops cannot be lost, which is what lets a stranger learn
+    // the game safely. So advance the tower to a narrow block first.
+    const top = { x: 60, width: 20 };
+    const narrowed = {
+      ...state,
+      stack: [...state.stack, top],
+      slider: { x: 0, width: 20, dir: 1 as const },
+      score: 1,
+    };
 
-    const after = drop(missing);
+    expect(overlap(narrowed.slider, top).width).toBe(0);
+
+    const after = drop(narrowed);
 
     expect(after.status).toBe("over");
     // "Ends the game" is only half the claim: a version that sets `over` and
     // still pushed the block would pass a one-assertion test while being wrong.
-    expect(after.stack).toHaveLength(state.stack.length);
+    expect(after.stack).toHaveLength(narrowed.stack.length);
   });
 });
 ```
