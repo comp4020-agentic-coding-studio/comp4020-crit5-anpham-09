@@ -42,16 +42,19 @@ jobs:
         if: ${{ !github.event.repository.is_template }}
         run: pnpm check:evidence
       - name: Check internal links
-        # Internal links only. linkinator checks outbound links by default, so
-        # someone else's rate limiter or outage would redden a build with
-        # nothing wrong in it --- crit 2 alone points the whole cohort at real
-        # orgs' sites and their socials. The regex skips anything not on the
-        # local origin the built site is served from; both spellings are named
-        # because a bare `--skip "^https?://"` matches that origin too and
-        # passes having scanned zero links. The stack skill rewrites the
-        # command below when it converts the repo to Astro, and carries the
-        # same skip over, so this comment holds either way.
-        run: pnpm dlx linkinator ./dist --silent --skip "^https?://(?!localhost|127)"
+        # `linkinator ./dist` cannot do this job for a site with a base path.
+        # It crawls dist/ as though it were the server root, so the stylesheet
+        # href /comp4020-crit5-anpham-09/_astro/index.*.css resolves to
+        # dist/comp4020-crit5-anpham-09/_astro/... which does not exist, and it
+        # reports a 404 for a file Pages serves perfectly. That is exactly how
+        # this repo's first public run failed. No flag fixes it: directory mode
+        # treats internal links as file paths.
+        #
+        # `spec/links.test.ts` resolves them the way Pages does instead --- it
+        # strips the base (read from astro.config.mjs, so the two cannot drift),
+        # looks the target up inside dist, and treats a directory as its
+        # index.html. It also covers the og:image, which linkinator never saw.
+        run: pnpm check:links
       - name: Scan for committed secrets
         # Pinned, both halves: the SHA fixes the action's script, and `version`
         # fixes the scanner image, which otherwise floats on :latest. These two

@@ -23,14 +23,21 @@ you plan or build, and see `spec/README.md` for how the checks relate to them.
   the pipeline. The evidence check, the secrets scan, and the deploy itself only
   run in CI; `pnpm check:evidence` and `pnpm check:links` cover the first two
   locally.
-- **Don't run `linkinator ./dist` — it lies.** The starter used to recommend it,
-  and `.github/workflows/checks.yml` now runs `pnpm check:links` instead --- it did
-  not until ship day, and the first public CI run failed on it --- for the reason you
-  will hit: linkinator crawls `dist/` as if it were the server root, so every
+- **Don't run `linkinator ./dist` — it lies, and the template ships it every
+  week.** `.github/workflows/checks.yml` arrives running linkinator and has to
+  be repointed at `pnpm check:links` in *every new repo*: the harness carries
+  across, the workflow does not. I wrote this rule in C4 as "now runs
+  check:links", which described that repo rather than a principle, so C5 started
+  from the template's linkinator again and the first public CI run failed on it
+  a second time. A rule that describes repo state expires the moment the repo is
+  regenerated. Check the workflow on day one. The reason it fails: linkinator crawls `dist/` as if it were the server root, so every
   `base`-prefixed href resolves to `dist/comp4020-crit5-anpham-09/…`, which does
   not exist locally, and it reports 404s for a site that serves perfectly on
   Pages. `pnpm check:links` (`spec/links.test.ts`) resolves them the way Pages
-  does. Trust that one.
+  does. Trust that one. It also stayed hidden until ship day both times, because
+  Astro inlines a small stylesheet and only emits an external `.css` --- the
+  first base-prefixed `href` on the page --- once the CSS grows past its
+  threshold. The check that has never had a link to test is not passing.
 - To see what the page actually looks like rather than what you assume it looks
   like, open it in a browser (the `agent-browser` CLI, documented on
   [the course site](https://comp.anu.edu.au/courses/comp4020-agentic-coding-studio/topics/backpressure/#agent-browser-the-rendered-page-as-ground-truth),
