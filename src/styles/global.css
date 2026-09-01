@@ -14,7 +14,8 @@
 :root {
   --ground: oklch(24% 0.055 254deg);
   --ground-deep: oklch(15% 0.045 258deg);
-  --storey: oklch(80% 0.05 235deg / 9%);
+  --storey: oklch(80% 0.05 235deg / 5%);
+  --storey-major: oklch(82% 0.05 232deg / 13%);
   --ink: oklch(93% 0.02 225deg);
   --ink-soft: oklch(68% 0.04 232deg);
   --block: oklch(87% 0.07 218deg);
@@ -41,7 +42,8 @@
   :root {
     --ground: oklch(42% 0.055 250deg);
     --ground-deep: oklch(30% 0.05 254deg);
-    --storey: oklch(92% 0.03 230deg / 14%);
+    --storey: oklch(92% 0.03 230deg / 8%);
+    --storey-major: oklch(96% 0.03 228deg / 18%);
     --block: oklch(93% 0.04 215deg);
     --block-alt: oklch(87% 0.06 202deg);
     --base: oklch(70% 0.06 232deg);
@@ -60,7 +62,10 @@ body {
   min-height: 100dvh;
   margin: 0;
   padding: 0;
-  background: linear-gradient(var(--ground-deep), var(--ground));
+
+  /* Lighter air above, deeper ground below, so the blocks gain contrast
+     exactly where the tower is built. */
+  background: linear-gradient(var(--ground), var(--ground-deep));
   color: var(--ink);
   font-family: var(--sans);
 }
@@ -172,11 +177,17 @@ main {
 .tower {
   position: absolute;
   inset: -400% 0 0;
-  background: repeating-linear-gradient(
-    to top,
-    var(--storey) 0 1px,
-    transparent 1px var(--block-h)
-  );
+  background:
+    repeating-linear-gradient(
+      to top,
+      var(--storey-major) 0 1px,
+      transparent 1px calc(var(--block-h) * 5)
+    ),
+    repeating-linear-gradient(
+      to top,
+      var(--storey) 0 1px,
+      transparent 1px var(--block-h)
+    );
   transform: translateY(calc(var(--lift) * var(--block-h)));
   transition: transform 140ms ease-out;
 }
