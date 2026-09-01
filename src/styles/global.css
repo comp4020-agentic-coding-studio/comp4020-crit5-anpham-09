@@ -82,16 +82,61 @@ body {
 }
 
 /* The title block of a drawing sheet: small, tracked, ruled off. */
-h1 {
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gutter);
   width: min(var(--column), 100%);
-  margin: 0;
-  padding: calc(var(--gutter) * 1.25) var(--gutter) 0.5rem;
+  padding: calc(var(--gutter) * 0.75) var(--gutter) 0.4rem;
   border-bottom: 1px solid var(--storey);
+}
+
+h1 {
+  margin: 0;
   color: var(--ink-soft);
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.32em;
   text-transform: uppercase;
+}
+
+/*
+ * Wordless on purpose: the screen has to invite the first move without saying
+ * anything, so the label lives in aria-label. It sits outside the field so it
+ * can never swallow a drop, and it is a full 44px target around an 18px glyph.
+ */
+.restart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 120ms ease-out, border-color 120ms ease-out;
+}
+
+.restart:hover {
+  border-color: var(--storey);
+  color: var(--ink);
+}
+
+.restart:focus-visible {
+  border-color: var(--datum);
+  color: var(--ink);
+  outline: none;
+}
+
+.restart svg {
+  stroke: currentcolor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 main {

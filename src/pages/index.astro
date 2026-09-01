@@ -22,7 +22,16 @@ const description = "A small browser game.";
       <a class="skip-link" href="#play">Skip to the game</a>
     </nav>
 
-    <h1>{title}</h1>
+    <header class="sheet-head">
+      <h1>{title}</h1>
+
+      <button class="restart" type="button" data-restart aria-label="New game">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+          <path d="M20.5 12a8.5 8.5 0 1 1-2.49-6.01" fill="none" />
+          <path d="M20.5 3.5v5h-5" fill="none" />
+        </svg>
+      </button>
+    </header>
 
     <main data-game>
       <div
@@ -48,6 +57,7 @@ const description = "A small browser game.";
 
       const root = document.querySelector("[data-game]");
       const field = document.querySelector<HTMLElement>("[data-field]");
+      const restart = document.querySelector<HTMLElement>("[data-restart]");
 
       if (root && field) {
         // Safari in private browsing throws on the property itself, not on use.
@@ -65,18 +75,34 @@ const description = "A small browser game.";
 
         const paint = () => render(root, state, best);
 
+        // A height you reached is a height you reached, whether the run ended by
+        // a miss or because you walked away from it.
+        const bankBest = () => {
+          if (best === null || state.score > best) {
+            best = state.score;
+            writeBest(store, best);
+          }
+        };
+
         const act = () => {
           if (state.status === "over") {
             state = createGame();
           } else {
             state = drop(state);
-            if (state.status === "over" && (best === null || state.score > best)) {
-              best = state.score;
-              writeBest(store, best);
-            }
+            if (state.status === "over") bankBest();
           }
           paint();
         };
+
+        const newGame = () => {
+          bankBest();
+          state = createGame();
+          paint();
+          // Hand the keyboard back to the field so Space still drops.
+          field.focus();
+        };
+
+        restart?.addEventListener("click", newGame);
 
         field.addEventListener("pointerdown", (event) => {
           event.preventDefault();
