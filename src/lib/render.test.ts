@@ -57,6 +57,18 @@ describe("render", () => {
     expect(best.textContent).toBe("9");
   });
 
+  // The record is drawn as a datum line ruled at the height to beat, so the
+  // number has to reach the stylesheet as a number, not only as text.
+  it("publishes the record height for the datum line", () => {
+    const el = root();
+
+    render(el, createGame(), null);
+    expect((el as HTMLElement).style.getPropertyValue("--best")).toBe("0");
+
+    render(el, createGame(), 9);
+    expect((el as HTMLElement).style.getPropertyValue("--best")).toBe("9");
+  });
+
   it("marks the root when the game is over", () => {
     const el = root();
     render(el, { ...createGame(), status: "over" }, null);

@@ -51,6 +51,11 @@ export function render(root: Element, state: State, best: number | null): void {
   const lift = Math.max(0, state.stack.length - VISIBLE);
   (tower as HTMLElement).style.setProperty("--lift", String(lift));
   slider.style.setProperty("--lift", String(lift));
+  bestEl.style.setProperty("--lift", String(lift));
+
+  // The record is drawn as a datum ruled across the sheet at the height to
+  // beat, so the stylesheet needs the height as a number, not just the text.
+  (root as HTMLElement).style.setProperty("--best", String(best ?? 0));
 
   // render runs every frame, and [data-score] is an aria-live region: writing
   // unconditionally would hand a screen reader ~60 announcements a second for a

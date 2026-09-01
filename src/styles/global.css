@@ -1,37 +1,51 @@
 /*
- * Stack Tower.
+ * Stack Tower, drawn as an elevation.
  *
- * Colour comes only from tokens, so dark mode is one block redefining them
- * rather than fifty overrides. Geometry is in percentages of the field, which
- * is what makes 1920x1080 and 390x844 the same game.
+ * The game is about alignment and accumulated error, not about height as
+ * aspiration, so the sheet borrows from architectural drafting: a cyanotype
+ * ground, storey rules that measure the tower, and blocks drawn as plan
+ * rectangles. Colour comes only from tokens, so the whole scheme is one block
+ * to retune. Geometry is in percentages of the field, which is what makes
+ * 1920x1080 and 390x844 the same game.
+ *
+ * The one warm thing on the sheet is the record datum. Nothing else competes.
  */
 
 :root {
-  --sky: oklch(96% 0.02 250deg);
-  --sky-deep: oklch(91% 0.03 250deg);
-  --ink: oklch(25% 0.03 250deg);
-  --ink-soft: oklch(52% 0.02 250deg);
-  --block: oklch(72% 0.15 250deg);
-  --block-alt: oklch(76% 0.14 190deg);
-  --block-edge: oklch(45% 0.12 250deg);
-  --base: oklch(40% 0.04 250deg);
-  --shadow: oklch(25% 0.03 250deg / 18%);
+  --ground: oklch(24% 0.055 254deg);
+  --ground-deep: oklch(15% 0.045 258deg);
+  --storey: oklch(80% 0.05 235deg / 9%);
+  --ink: oklch(93% 0.02 225deg);
+  --ink-soft: oklch(68% 0.04 232deg);
+  --block: oklch(87% 0.07 218deg);
+  --block-alt: oklch(79% 0.09 204deg);
+  --block-edge: oklch(38% 0.06 246deg);
+  --base: oklch(56% 0.07 236deg);
+  --ghost: oklch(87% 0.07 218deg / 16%);
+  --datum: oklch(83% 0.15 82deg);
+  --datum-line: oklch(83% 0.15 82deg / 55%);
+  --mono: ui-monospace, sfmono-regular, "SF Mono", menlo, consolas, monospace;
+  --sans: system-ui, sans-serif;
   --block-h: 1.75rem;
   --lift: 0;
+  --best: 0;
   --gutter: 1rem;
+  --column: 38rem;
 }
 
-@media (prefers-color-scheme: dark) {
+/*
+ * A blueprint is a dark artefact, so the scheme does not invert. For a reader
+ * who has asked for light, the ground is sun-faded rather than replaced.
+ */
+@media (prefers-color-scheme: light) {
   :root {
-    --sky: oklch(22% 0.02 250deg);
-    --sky-deep: oklch(16% 0.02 250deg);
-    --ink: oklch(93% 0.02 250deg);
-    --ink-soft: oklch(70% 0.02 250deg);
-    --block: oklch(62% 0.15 250deg);
-    --block-alt: oklch(66% 0.14 190deg);
-    --block-edge: oklch(80% 0.10 250deg);
-    --base: oklch(72% 0.04 250deg);
-    --shadow: oklch(0% 0 0deg / 35%);
+    --ground: oklch(42% 0.055 250deg);
+    --ground-deep: oklch(30% 0.05 254deg);
+    --storey: oklch(92% 0.03 230deg / 14%);
+    --block: oklch(93% 0.04 215deg);
+    --block-alt: oklch(87% 0.06 202deg);
+    --base: oklch(70% 0.06 232deg);
+    --ghost: oklch(96% 0.02 215deg / 22%);
   }
 }
 
@@ -40,124 +54,168 @@
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  background: linear-gradient(var(--sky), var(--sky-deep));
-  color: var(--ink);
-  font-family: system-ui, sans-serif;
-  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(var(--ground-deep), var(--ground));
+  color: var(--ink);
+  font-family: var(--sans);
 }
 
 .skip-link {
   position: absolute;
   left: -100vw;
-  min-height: 44px;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  background: var(--sky);
-  color: var(--ink);
   display: flex;
   align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border-radius: 2px;
+  background: var(--ground-deep);
+  color: var(--ink);
 }
 
 .skip-link:focus {
   position: static;
 }
 
+/* The title block of a drawing sheet: small, tracked, ruled off. */
 h1 {
-  margin: var(--gutter) 0 0;
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  width: min(var(--column), 100%);
+  margin: 0;
+  padding: calc(var(--gutter) * 1.25) var(--gutter) 0.5rem;
+  border-bottom: 1px solid var(--storey);
   color: var(--ink-soft);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
 }
 
 main {
   position: relative;
-  width: min(38rem, 100%);
-  flex: 1;
   display: flex;
+  flex: 1;
   flex-direction: column;
   align-items: center;
+  width: min(var(--column), 100%);
 }
 
 .field {
   position: relative;
-  width: 100%;
   flex: 1;
-  min-height: 20rem;
+  width: 100%;
+  min-height: 18rem;
   overflow: hidden;
+  border-bottom: 2px solid var(--base);
   cursor: pointer;
   touch-action: manipulation;
 }
 
 .field:focus-visible {
-  outline: 3px solid var(--block-edge);
-  outline-offset: -3px;
+  outline: 2px solid var(--datum);
+  outline-offset: -2px;
 }
 
+/*
+ * The tower carries the storey rules, so the measuring staff scrolls with the
+ * building rather than sliding against it. It reaches far above the field to
+ * keep the air ruled once the camera starts lifting.
+ */
 .tower {
   position: absolute;
-  inset: 0;
+  inset: -400% 0 0;
+  background: repeating-linear-gradient(
+    to top,
+    var(--storey) 0 1px,
+    transparent 1px var(--block-h)
+  );
   transform: translateY(calc(var(--lift) * var(--block-h)));
-  transition: transform 120ms ease-out;
+  transition: transform 140ms ease-out;
 }
 
 .block,
 .slider {
   position: absolute;
-  height: var(--block-h);
   bottom: calc(var(--i, 0) * var(--block-h));
+  height: var(--block-h);
   border: 1px solid var(--block-edge);
-  border-radius: 3px;
   background: var(--block);
-  box-shadow: 0 1px 3px var(--shadow);
 }
 
 .block:nth-child(odd) {
   background: var(--block-alt);
 }
 
+/* The ground course is drawn heavier, the way a footing is. */
 .block:first-child {
+  border-width: 2px 1px 1px;
   background: var(--base);
 }
 
+/* In flight and not yet committed, so it is drawn rather than filled. */
 .slider {
-  /* Same direction as the tower: both are lifted by the camera, not against it. */
+  border-color: var(--ink);
+  background: var(--ghost);
   transform: translateY(calc(var(--lift) * var(--block-h)));
-  transition: transform 120ms ease-out;
-}
-
-.score {
-  margin: 0 0 var(--gutter);
-  font-size: 3rem;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.best {
-  position: absolute;
-  top: var(--gutter);
-  right: var(--gutter);
-  margin: 0;
-  font-size: 1rem;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink-soft);
+  transition: transform 140ms ease-out;
 }
 
 [data-status="over"] .slider {
-  opacity: 0.25;
+  border-style: dashed;
+  opacity: 0.4;
 }
 
 /*
- * The sweep and the fall are the game, and they are driven by
- * requestAnimationFrame rather than CSS — so this blanket reset strips the
- * decoration around them without stopping play. Motion that cannot be turned
- * off is an accessibility defect; motion that IS the mechanic is exempt.
+ * The record datum: a line ruled across the sheet at the height to beat, with
+ * its number sitting on it. Zero height so the rule and the figure share one
+ * baseline, and it rides the same lift as the tower it measures.
+ */
+.best {
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--best) * var(--block-h));
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 0;
+  margin: 0;
+  padding-right: 0.15rem;
+  color: var(--datum);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  transform: translateY(calc(var(--lift) * var(--block-h)));
+  transition: transform 140ms ease-out;
+}
+
+.best::before {
+  flex: 1;
+  border-top: 1px dashed var(--datum-line);
+  content: "";
+}
+
+/* The readout. Monospaced because it is a measurement, not a label. */
+.score {
+  margin: 0;
+  padding: 0.65rem 0 var(--gutter);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 2.75rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+/*
+ * The sweep and the fall are the game and are driven by requestAnimationFrame,
+ * so this reset strips the decoration around them without stopping play.
  */
 @media (prefers-reduced-motion: reduce) {
   *,
