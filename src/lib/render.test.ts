@@ -62,4 +62,17 @@ describe("render", () => {
     render(el, { ...createGame(), status: "over" }, null);
     expect(el.getAttribute("data-status")).toBe("over");
   });
+
+  it("drops stale blocks when the game restarts", () => {
+    const el = root();
+
+    let state = drop({ ...createGame(), slider: { x: 35, width: 40, dir: 1 } });
+    state = drop(state);
+    render(el, state, null);
+    expect(el.querySelectorAll("[data-tower] .block")).toHaveLength(3);
+
+    // A restart is a shrinking state: one block, and nothing left of the old run.
+    render(el, createGame(), null);
+    expect(el.querySelectorAll("[data-tower] .block")).toHaveLength(1);
+  });
 });
